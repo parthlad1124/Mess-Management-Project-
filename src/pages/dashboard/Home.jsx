@@ -208,6 +208,7 @@ const Home = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                     {/* Simplified view for End Users */}
                     <StatCard
+                    
                         title="Today's Expected Headcount"
                         value={loading ? "..." : (stats.expectedLunch + stats.expectedStaffToday)}
                         icon={<Users size={24} className="text-blue-600" />}

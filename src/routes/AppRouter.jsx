@@ -18,6 +18,7 @@ import Payments from '../pages/dashboard/Payments';
 import Feedback from '../pages/dashboard/Feedback';
 import Leave from '../pages/dashboard/Leave';
 import Inventory from '../pages/dashboard/Inventory';
+import AdminUsers from "../pages/dashboard/AdminUsers";
 
 // Protected Route Wrapper
 const ProtectedRoute = ({ children, roles }) => {
@@ -32,6 +33,7 @@ const ProtectedRoute = ({ children, roles }) => {
 
     return children;
 };
+
 const AppRouter = () => {
     return (
         <Routes>
@@ -58,13 +60,31 @@ const AppRouter = () => {
                 <Route path="payments" element={<Payments />} />
                 <Route path="feedback" element={<Feedback />} />
                 <Route path="leave" element={<Leave />} />
-                <Route path="inventory" element={ <ProtectedRoute roles={['Admin']}> <Inventory /> </ProtectedRoute> } />
+
+                {/* Admin-only Inventory */}
+                <Route
+                    path="inventory"
+                    element={
+                        <ProtectedRoute roles={['Admin']}>
+                            <Inventory />
+                        </ProtectedRoute>
+                    }
+                />
+
+                {/* ✅ Admin Users (FIXED) */}
+                <Route
+                    path="admin/users"
+                    element={
+                        <ProtectedRoute roles={['Admin']}>
+                            <AdminUsers />
+                        </ProtectedRoute>
+                    }
+                />
             </Route>
 
             {/* Catch All */}
             <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes>
-        
     );
 };
 

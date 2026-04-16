@@ -13,7 +13,11 @@ import {
     Bell,
     User as UserIcon,
     ShieldAlert,
-    CalendarDays
+    CalendarDays,
+    User,
+    UserCog,
+    UserPlus,
+    UserCog2
 } from 'lucide-react';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -46,6 +50,7 @@ const DashboardLayout = () => {
         { name: 'Payments', path: '/dashboard/payments', icon: <CreditCard size={20} />, roles: ['Admin', 'Student'] },
         { name: 'Feedback', path: '/dashboard/feedback', icon: <MessageSquare size={20} /> },
         { name: 'Inventory', path: '/dashboard/inventory', icon: <Boxes size={20} />, roles: ['Admin'] },
+        { name: 'Manage Users', path: '/dashboard/admin/users', icon: <UserCog2 size={20} />, roles: ['Admin'] },
     ];
 
     const handleLogout = () => {
@@ -167,6 +172,7 @@ const DashboardLayout = () => {
             )}
 
             {/* Sidebar Navigation */}
+
             <aside
                 className={`fixed inset-y-0 left-0 z-40 w-64 transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
                     }`}

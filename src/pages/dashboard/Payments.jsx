@@ -5,6 +5,7 @@ import { Card, Button, Spinner } from '../../components/ui/BaseComponents';
 import { Search, DollarSign, ReceiptText, CheckCircle2, Clock } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { format } from 'date-fns';
+import loadRazorpay from "../../utils/loadRazorpay";
 
 const Payments = () => {
     const { user } = useAuth();
@@ -53,15 +54,45 @@ const Payments = () => {
         }
     };
 
-    const handlePay = async (id) => {
-        if (!window.confirm("Confirm payment processing?")) return;
-        try {
-            await axiosClient.put(`/payment/${id}/pay`);
-            toast.success("Payment marked as paid!");
-            fetchPayments();
-        } catch (error) {
-            toast.error('Payment processing failed.');
+  const handlePay = async (payment) => {
+        const res = await loadRazorpay();
+
+        if (!res) {
+            toast.error("Razorpay SDK failed to load");
+            return;
         }
+
+        const options = {
+            key: "rzp_test_Se3QsYNl4nyglK", 
+            amount: payment.amount * 100, // convert ₹ to paise
+            currency: "INR",
+            name: "Apna Mess",
+            description: `Payment for ${payment.invoiceMonth}`,
+
+            handler: async function (response) {
+                try {
+                    // AFTER SUCCESS → mark as paid in backend
+                    await axiosClient.put(`/payment/${payment.id}/pay`);
+                    toast.success("Payment Successful!");
+                    fetchPayments();
+                } catch (err) {
+                    toast.error("Payment saved failed");
+                }
+            },
+
+            prefill: {
+                name: user?.fullName || "User",
+                email: user?.email || "test@gmail.com",
+                contact: "9999999999",
+            },
+
+            theme: {
+                color: "#10b981",
+            },
+        };
+
+        const paymentObject = new window.Razorpay(options);
+        paymentObject.open();
     };
 
     const filteredPayments = payments.filter(p =>
@@ -155,7 +186,7 @@ const Payments = () => {
                                             <tr key={payment.id} className="hover:bg-gray-50/50 transition-colors">
                                                 <td className="p-4 font-medium text-gray-900">{payment.invoiceMonth}</td>
                                                 {isAdmin && <td className="p-4">{payment.userName}</td>}
-                                                <td className="p-4 font-bold text-gray-900">${payment.amount}</td>
+                                                <td className="p-4 font-bold text-gray-900">₹{payment.amount}</td>
                                                 <td className="p-4">
                                                     <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold ${payment.status === 'Paid'
                                                             ? 'bg-emerald-100 text-emerald-700'
@@ -168,7 +199,7 @@ const Payments = () => {
                                                 <td className="p-4 text-right">
                                                     {payment.status === 'Pending' ? (
                                                         <Button
-                                                            onClick={() => handlePay(payment.id)}
+                                                            onClick={() => handlePay(payment)}
                                                             size="sm"
                                                             className="py-1.5 px-3 bg-emerald-100 text-emerald-700 hover:bg-emerald-200 border-0"
                                                         >
